@@ -1,6 +1,7 @@
 import express from 'express'
 import mongoose from "mongoose";
 import User from './Modals/UserModal.js';
+import jwt from 'jsonwebtoken';
 const app = express();
 
 const connectDB = async () => {
@@ -36,12 +37,15 @@ app.post('/signup', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        const isUser = await User.findOne({ email })
-        if (isUser) {
-            res.status(200).json('Login')
-        } else {
-            res.status(400).json('User Does not exist')
+        const user = await User.findOne({ email })
+        console.log()
+        if (!user || user.password !== password) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+            // res.status(200).json('Login')
         }
+        const token = jwt.sign({ userId: user._id }, 'ABC')
+        res.cookie('token', token)
+        res.status(200).json({ message: 'Login successful' });
     } catch (error) {
         res.status(400).json({ error: 'User not found', details: error });
     }
