@@ -2,7 +2,17 @@ import express from 'express'
 import mongoose from "mongoose";
 import User from './Modals/UserModal.js';
 import jwt from 'jsonwebtoken';
+import cors from 'cors';
+
+
 const app = express();
+
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true // Needed if you're using cookies
+}));
+
 
 const connectDB = async () => {
     try {
@@ -22,8 +32,8 @@ app.get('/', (req, res) => {
 
 app.post('/signup', async (req, res) => {
     try {
-        const { username, email, password } = req.body
-        const newUser = new User({ username, email, password })
+        const { userName, email, password } = req.body
+        const newUser = new User({ userName, email, password })
         const savedUser = await newUser.save();
         res.status(201).json(savedUser);
     } catch (error) {
